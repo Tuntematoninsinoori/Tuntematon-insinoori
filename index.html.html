@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tuntematon insinööri - Podcast & Peli</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #0a192f;
+    color: #e6f1ff;
+    line-height: 1.6;
+  }
+  header {
+    background-color: #112240;
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+  header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+  }
+  header p {
+    font-size: 1.2rem;
+    color: #8892b0;
+  }
+  .buttons a {
+    display: inline-block;
+    margin: 1rem 0.5rem;
+    padding: 0.7rem 1.5rem;
+    background-color: #64ffda;
+    color: #0a192f;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  section {
+    padding: 2rem 1rem;
+    max-width: 900px;
+    margin: auto;
+  }
+  h2 {
+    color: #64ffda;
+  }
+  .episode {
+    background-color: #112240;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+  }
+  a {
+    color: #64ffda;
+  }
+  footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #112240;
+    font-size: 0.9rem;
+    color: #8892b0;
+  }
+
+  /* Pelin tyylit */
+  #game-section {
+    background:#112240;
+    padding:2rem;
+    color:#64ffda;
+  }
+  #gameCanvas {
+    background:#0a192f;
+    display:block;
+    margin:auto;
+    border: 2px solid #64ffda;
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Tuntematon insinööri</h1>
+  <p>Podcast insinööreistä ja heidän tarinoistaan – urasta, projekteista ja arjesta tekniikan maailmassa.</p>
+  <div class="buttons">
+    <a href="https://open.spotify.com/show/4HdfYQKACLO9l9JH7crD6g" target="_blank" rel="noopener noreferrer">Kuuntele Spotifyssa</a>
+    <a href="#">Kuuntele Apple Podcastsissa</a>
+  </div>
+</header>
+
+<section>
+  <h2>Uusimmat jaksot</h2>
+  <div class="episode">
+    <h3>Jakso 1: Sähköinsinöörin päiväkirja</h3>
+    <p>Millaista on suunnitella sähköjärjestelmiä tuhansille ihmisille? Vieraanamme sähköinsinööri Laura Virtanen.</p>
+  </div>
+  <div class="episode">
+    <h3>Jakso 2: Ohjelmistokehittäjä laivalla</h3>
+    <p>Merellä ei ole wifiä – mutta softaa pitää silti kehittää. Keskustelussa ohjelmistokehittäjä Mika Korhonen.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Kuuntele Spotifyssa</h2>
+  <iframe src="https://open.spotify.com/embed/show/4HdfYQKACLO9l9JH7crD6g" width="100%" height="232" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+</section>
+
+<section>
+  <h2>Tietoa podcastista</h2>
+  <p>Tuntematon insinööri on haastattelupodcast, jossa pureudutaan tekniikan eri aloihin ja ihmisiin niiden takana. Jokaisessa jaksossa keskustellaan urapoluista, onnistumisista, epäonnistumisista ja tulevaisuuden näkymistä.</p>
+</section>
+
+<section>
+  <h2>Ota yhteyttä</h2>
+  <p>Haluatko ehdottaa vierasta tai antaa palautetta?</p>
+  <p>Lähetä sähköpostia: <a href="mailto:info@tuntematoninsinoori.fi">info@tuntematoninsinoori.fi</a></p>
+</section>
+
+<section id="game-section">
+  <h2>Peli: Insinööri ratkoo ongelmia</h2>
+  <p>Ohjaa insinööriä nuolinäppäimillä ylös ja alas. Väistä ongelmat ja pääse deadlineihin!</p>
+  <canvas id="gameCanvas" width="800" height="200"></canvas>
+  <p id="gameStatus" style="text-align:center; margin-top:1rem; font-weight:bold;"></p>
+</section>
+
+<footer>
+  &copy; 2025 Tuntematon insinööri. Kaikki oikeudet pidätetään.
+</footer>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const player = { x: 50, y: 90, width: 30, height: 30, speed: 5 };
+  const obstacles = [];
+  const obstacleWidth = 20;
+  const obstacleHeight = 30;
+  let gameOver = false;
+  let score = 0;
+
+  let keys = {};
+  window.addEventListener('keydown', e => { keys[e.key] = true; });
+  window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+  function addObstacle() {
+    const yPos = Math.floor(Math.random() * (canvas.height - obstacleHeight));
+    obstacles.push({ x: canvas.width, y: yPos, width: obstacleWidth, height: obstacleHeight });
+  }
+
+  function isColliding(rect1, rect2) {
+    return !(rect1.x > rect2.x + rect2.width ||
+             rect1.x + rect1.width < rect2.x ||
+             rect1.y > rect2.y + rect2.height ||
+             rect1.y + rect1.height < rect2.y);
+  }
+
+  function update() {
+    if(gameOver) return;
+
+    if(keys['ArrowUp'] && player.y > 0) player.y -= player.speed;
+    if(keys['ArrowDown'] && player.y + player.height < canvas.height) player.y += player.speed;
+
+    if(Math.random() < 0.02) addObstacle();
+
+    for(let i = 0; i < obstacles.length; i++) {
+      obstacles[i].x -= 4;
+
+      if(isColliding(player, obstacles[i])) {
+        gameOver = true;
+        document.getElementById('gameStatus').textContent = "Peli päättyi! Insinööri kompastui ongelmaan. F5 aloittaa alusta.";
+      }
+    }
+
+    if(obstacles.length && obstacles[0].x + obstacleWidth < 0) {
+      obstacles.shift();
+      score++;
+      if(score >= 20) {
+        gameOver = true;
+        document.getElementById('gameStatus').textContent = "Onneksi olkoon! Insinööri ehti deadlineihin!";
+      }
+    }
+  }
+
+  function draw() {
+    ctx.fillStyle = '#0a192f';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#64ffda';
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    ctx.fillStyle = '#ff5555';
+    obstacles.forEach(obs => {
+      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+    });
+
+    ctx.fillStyle = '#64ffda';
+    ctx.font = '16px Arial';
+    ctx.fillText('Pisteet: ' + score, 10, 20);
+  }
+
+  function gameLoop() {
+    update();
+    draw();
+    if(!gameOver) {
+      requestAnimationFrame(gameLoop);
+    }
+  }
+
+  gameLoop();
+</script>
+
+</body>
+</html>
